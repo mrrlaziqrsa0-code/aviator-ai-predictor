@@ -1,0 +1,123 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aviator AI Predictor</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#090d18;color:white;font-family:Arial,sans-serif;padding:20px}
+header{text-align:center;padding:20px}
+h1{color:#ff414d;margin-bottom:5px}
+.sub{color:#9ba8bc;font-size:13px}
+.card{background:#151e30;border:1px solid #29364e;border-radius:15px;padding:18px;margin:15px 0}
+h3{margin-top:0;color:#dbe5f5}
+.multiplier{font-size:48px;font-weight:bold;color:#ff4757;text-align:center;padding:15px}
+.status{text-align:center;color:#f5c96a;font-size:13px}
+button{background:#ff414d;color:white;border:0;border-radius:9px;padding:13px;font-weight:bold;width:100%;margin-top:10px}
+input{width:100%;padding:13px;border-radius:8px;border:1px solid #34445e;background:#0b1322;color:white;margin-top:8px}
+.stats{display:flex;justify-content:space-between;text-align:center;gap:10px}
+.stat{flex:1;background:#0c1424;padding:13px;border-radius:9px}
+.stat strong{display:block;font-size:22px;margin-top:7px}
+li{padding:6px;color:#c5d0e0}
+.small{font-size:12px;color:#93a1b5}
+</style>
+</head>
+<body>
+
+<header>
+<h1>AVIATOR AI</h1>
+<div class="sub">MULTIPLIER ANALYSIS ENGINE</div>
+</header>
+
+<div class="card">
+<h3>Next round estimate</h3>
+<div class="multiplier" id="prediction">--</div>
+<div class="status" id="status">Waiting for historical data</div>
+<button onclick="analyse()">ANALYSE DATA</button>
+<p class="small">Statistical estimate only. Aviator outcomes cannot be reliably predicted.</p>
+</div>
+
+<div class="card">
+<h3>Enter previous results</h3>
+<input id="result" type="number" min="1" step="0.01" placeholder="Example: 2.45">
+<button onclick="addResult()">ADD RESULT</button>
+</div>
+
+<div class="card">
+<h3>Engine statistics</h3>
+<div class="stats">
+<div class="stat">Rounds<strong id="count">0</strong></div>
+<div class="stat">Average<strong id="average">--</strong></div>
+<div class="stat">Above 2x<strong id="above">0%</strong></div>
+</div>
+</div>
+
+<div class="card">
+<h3>Recent history</h3>
+<ul id="history"><li>No data yet</li></ul>
+<button onclick="clearData()" style="background:#35435c">CLEAR HISTORY</button>
+</div>
+
+<script>
+let results = [];
+
+function addResult(){
+ const input=document.getElementById("result");
+ const value=Number(input.value);
+ if(!Number.isFinite(value)||value<1){
+  alert("Enter a valid multiplier of at least 1.00");
+  return;
+ }
+ results.unshift(value);
+ results=results.slice(0,500);
+ input.value="";
+ update();
+}
+
+function update(){
+ document.getElementById("count").textContent=results.length;
+ if(!results.length){
+  document.getElementById("average").textContent="--";
+  document.getElementById("above").textContent="0%";
+  document.getElementById("history").innerHTML="<li>No data yet</li>";
+  return;
+ }
+ const avg=results.reduce((a,b)=>a+b,0)/results.length;
+ const above=results.filter(x=>x>=2).length/results.length*100;
+ document.getElementById("average").textContent=avg.toFixed(2)+"x";
+ document.getElementById("above").textContent=above.toFixed(1)+"%";
+ document.getElementById("history").innerHTML=
+ results.slice(0,15).map(x=>"<li>"+x.toFixed(2)+"x</li>").join("");
+}
+
+function analyse(){
+ if(results.length<20){
+  document.getElementById("status").textContent=
+  "Enter at least 20 historical rounds first.";
+  return;
+ }
+ const avg=results.reduce((a,b)=>a+b,0)/results.length;
+ const recent=results.slice(0,20);
+ const recentAvg=recent.reduce((a,b)=>a+b,0)/recent.length;
+ document.getElementById("prediction").textContent=
+ Math.max(1,Math.min(3,avg)).toFixed(2)+"x";
+ document.getElementById("status").textContent=
+ "Analysis complete • Overall average: "+avg.toFixed(2)+
+ "x • Recent average: "+recentAvg.toFixed(2)+"x";
+}
+
+function clearData(){
+ if(confirm("Delete all historical results?")){
+  results=[];
+  document.getElementById("prediction").textContent="--";
+  document.getElementById("status").textContent="Waiting for historical data";
+  update();
+ }
+}
+update();
+</script>
+
+</body>
+</html>
