@@ -3,217 +3,94 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#080808">
 <title>LaziQ Predictions</title>
-
 <style>
 *{box-sizing:border-box}
-body{
- margin:0;
- background:#080808;
- color:white;
- font-family:Arial,sans-serif;
- padding:15px;
-}
-header{
- text-align:center;
- padding:25px 10px;
- background:linear-gradient(180deg,#350909,#080808);
- border-bottom:1px solid #ff3030;
-}
-.logo{
- font-size:30px;
- font-weight:900;
- color:#ff3030;
- letter-spacing:2px;
- text-shadow:0 0 18px #ff2222;
-}
-.tagline{
- font-size:11px;
- color:#aaa;
- letter-spacing:3px;
- margin-top:7px;
-}
-.plane{
- font-size:38px;
- margin-bottom:8px;
-}
-.card{
- background:linear-gradient(145deg,#191919,#101010);
- border:1px solid #333;
- border-radius:14px;
- padding:18px;
- margin:15px 0;
- box-shadow:0 5px 20px #000;
-}
-h3{
- color:#ff4242;
- font-size:14px;
- letter-spacing:1px;
-}
-.multiplier{
- text-align:center;
- font-size:60px;
- font-weight:900;
- color:#ff3333;
- padding:20px 0;
- text-shadow:0 0 25px #ff222255;
-}
-.status{
- text-align:center;
- color:#ffcc66;
- font-size:12px;
-}
-button{
- width:100%;
- border:0;
- border-radius:9px;
- padding:15px;
- margin-top:12px;
- background:linear-gradient(90deg,#b80000,#ff3838);
- color:white;
- font-weight:bold;
- font-size:14px;
- cursor:pointer;
-}
-.secondary{background:#292929}
-input{
- width:100%;
- padding:14px;
- border-radius:8px;
- border:1px solid #444;
- background:#080808;
- color:white;
- margin-top:8px;
- font-size:16px;
-}
-.stats{
- display:flex;
- gap:8px;
- text-align:center;
-}
-.stat{
- flex:1;
- background:#080808;
- border:1px solid #292929;
- border-radius:9px;
- padding:13px 4px;
- color:#aaa;
- font-size:10px;
-}
-.stat strong{
- display:block;
- color:#ff4242;
- font-size:20px;
- margin-top:8px;
-}
-ul{padding-left:20px;color:#ddd}
-li{padding:5px}
-.small{
- color:#888;
- font-size:11px;
- line-height:1.7;
-}
-hr{border:0;border-top:1px solid #333;margin:15px 0}
-footer{
- text-align:center;
- padding:25px 5px;
- color:#777;
- font-size:11px;
-}
+body{margin:0;background:#080808;color:white;font-family:Arial;padding:15px}
+header{text-align:center;padding:25px 10px;background:linear-gradient(#390909,#080808);border-bottom:1px solid #f33}
+.logo{font-size:27px;font-weight:900;color:#ff3838;letter-spacing:2px}
+.tag{font-size:11px;color:#aaa;letter-spacing:3px;margin-top:7px}
+.card{background:#171717;border:1px solid #333;border-radius:14px;padding:17px;margin:14px 0}
+h3{font-size:13px;color:#ff4545;letter-spacing:1px}
+.multiplier{text-align:center;font-size:58px;font-weight:900;color:#ff3838;padding:20px}
+.status{text-align:center;color:#ffce70;font-size:12px}
+button{width:100%;padding:14px;border:0;border-radius:8px;margin-top:10px;background:linear-gradient(90deg,#b90000,#ff3838);color:white;font-weight:bold}
+.secondary{background:#333}
+input{width:100%;padding:13px;margin-top:8px;background:#080808;border:1px solid #444;border-radius:8px;color:white}
+.stats{display:flex;gap:7px;text-align:center}
+.stat{flex:1;background:#090909;border-radius:8px;padding:12px 3px;color:#aaa;font-size:10px}
+.stat strong{display:block;color:#ff4545;font-size:19px;margin-top:8px}
+.small{font-size:11px;color:#999;line-height:1.7}
+canvas{width:100%;height:180px;display:block}
+footer{text-align:center;color:#666;font-size:11px;padding:20px}
 </style>
 </head>
-
 <body>
 
 <header>
-<div class="plane">✈</div>
+<div style="font-size:35px">✈</div>
 <div class="logo">LAZIQ PREDICTIONS</div>
-<div class="tagline">AVIATOR ANALYSIS ENGINE</div>
+<div class="tag">AVIATOR ANALYSIS ENGINE</div>
 </header>
 
 <div class="card">
-<h3>✈ NEXT ROUND ANALYSIS</h3>
-
+<h3>NEXT ROUND ESTIMATE</h3>
 <div class="multiplier" id="prediction">--</div>
-
-<div class="status" id="status">
-ENGINE WAITING FOR DATA
-</div>
-
+<div class="status" id="status">ENGINE WAITING FOR DATA</div>
 <button onclick="analyse()">ANALYSE RESULTS</button>
-
-<p class="small">
-Historical statistical estimate only. No system can guarantee
-the next Aviator multiplier.
-</p>
+<p class="small">Historical estimate only. Random game outcomes cannot be reliably predicted.</p>
 </div>
 
 <div class="card">
-<h3>＋ ADD PREVIOUS ROUND</h3>
-
-<input
- id="result"
- type="number"
- min="1"
- max="100000"
- step="0.01"
- placeholder="Enter multiplier e.g. 2.45"
->
-
-<button onclick="addResult()">SAVE RESULT</button>
+<h3>RECORD A ROUND</h3>
+<input id="result" type="number" min="1" max="100000" step="0.01" placeholder="Example: 2.45">
+<button onclick="addResult()">SAVE ROUND</button>
 </div>
 
 <div class="card">
-<h3>ENGINE STATISTICS</h3>
+<h3>DATA COLLECTION</h3>
+<p class="small">Import a CSV or text file containing one multiplier per line, or one multiplier column.</p>
+<input id="csvFile" type="file" accept=".csv,.txt">
+<button onclick="importFile()">IMPORT RESULTS</button>
+<button class="secondary" onclick="exportData()">EXPORT ROUND HISTORY</button>
+</div>
 
+<div class="card">
+<h3>LIVE STATISTICS</h3>
 <div class="stats">
-<div class="stat">
-TOTAL ROUNDS
-<strong id="count">0</strong>
-</div>
-
-<div class="stat">
-AVERAGE
-<strong id="average">--</strong>
-</div>
-
-<div class="stat">
-ABOVE 2X
-<strong id="above">0%</strong>
-</div>
+<div class="stat">ROUNDS<strong id="count">0</strong></div>
+<div class="stat">AVERAGE<strong id="average">--</strong></div>
+<div class="stat">ABOVE 2X<strong id="above">0%</strong></div>
 </div>
 </div>
 
 <div class="card">
-<h3>ROUND HISTORY</h3>
-<ul id="history">
-<li>No results recorded</li>
-</ul>
-
-<button class="secondary" onclick="clearData()">
-CLEAR HISTORY
-</button>
+<h3>MULTIPLIER HISTORY CHART</h3>
+<canvas id="multiplierChart" width="700" height="240"></canvas>
+<p class="small">Latest 30 recorded rounds. Each bar represents one round.</p>
 </div>
 
 <div class="card">
-<h3>LAZIQ ENGINE STATUS</h3>
+<h3>RECENT ROUNDS</h3>
+<ul id="history"><li>No results recorded</li></ul>
+<button class="secondary" onclick="clearData()">CLEAR HISTORY</button>
+</div>
+
+<div class="card">
+<h3>ENGINE STATUS</h3>
 <p class="small">
 ENGINE: Statistical analysis<br>
-DATA: Manually collected results<br>
 STORAGE: Browser local storage<br>
-BACKTEST: Historical performance<br>
-LIVE GAME CONNECTION: Not connected
+DATA: Manual entry and file import<br>
+BACKTEST: Historical comparison<br>
+LIVE PLATFORM FEED: Not connected
 </p>
 </div>
 
-<footer>
-LAZIQ PREDICTIONS © 2026<br>
-BUILT FOR ANALYSIS • NOT GUARANTEED PREDICTIONS
-</footer>
+<footer>LAZIQ PREDICTIONS © 2026</footer>
 
 <script src="engine.js"></script>
-
 </body>
 </html>
