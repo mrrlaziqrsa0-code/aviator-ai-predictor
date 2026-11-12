@@ -4,74 +4,155 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#090d18">
-<title>AVIATOR AI PREDICTOR</title>
+<meta name="theme-color" content="#080808">
+<title>LaziQ Predictions</title>
 
 <style>
 *{box-sizing:border-box}
 body{
- margin:0;background:#090d18;color:#fff;
- font-family:Arial,sans-serif;padding:18px;
+ margin:0;
+ background:#080808;
+ color:white;
+ font-family:Arial,sans-serif;
+ padding:15px;
 }
-header{text-align:center;padding:20px 0}
-h1{color:#ff4655;letter-spacing:2px}
-.sub{color:#8d9ab0;font-size:12px}
+header{
+ text-align:center;
+ padding:25px 10px;
+ background:linear-gradient(180deg,#350909,#080808);
+ border-bottom:1px solid #ff3030;
+}
+.logo{
+ font-size:30px;
+ font-weight:900;
+ color:#ff3030;
+ letter-spacing:2px;
+ text-shadow:0 0 18px #ff2222;
+}
+.tagline{
+ font-size:11px;
+ color:#aaa;
+ letter-spacing:3px;
+ margin-top:7px;
+}
+.plane{
+ font-size:38px;
+ margin-bottom:8px;
+}
 .card{
- background:#151e30;border:1px solid #29364e;
- border-radius:15px;padding:18px;margin:15px 0;
+ background:linear-gradient(145deg,#191919,#101010);
+ border:1px solid #333;
+ border-radius:14px;
+ padding:18px;
+ margin:15px 0;
+ box-shadow:0 5px 20px #000;
 }
-h3{font-size:15px;color:#dce5f5}
+h3{
+ color:#ff4242;
+ font-size:14px;
+ letter-spacing:1px;
+}
 .multiplier{
- font-size:55px;font-weight:bold;
- color:#ff4655;text-align:center;padding:18px;
+ text-align:center;
+ font-size:60px;
+ font-weight:900;
+ color:#ff3333;
+ padding:20px 0;
+ text-shadow:0 0 25px #ff222255;
 }
-.status{text-align:center;color:#f4c86a;font-size:12px}
+.status{
+ text-align:center;
+ color:#ffcc66;
+ font-size:12px;
+}
 button{
- width:100%;padding:14px;border:0;border-radius:9px;
- background:#ff4655;color:white;font-weight:bold;
- margin-top:12px;cursor:pointer;
+ width:100%;
+ border:0;
+ border-radius:9px;
+ padding:15px;
+ margin-top:12px;
+ background:linear-gradient(90deg,#b80000,#ff3838);
+ color:white;
+ font-weight:bold;
+ font-size:14px;
+ cursor:pointer;
 }
-.secondary{background:#34445d}
+.secondary{background:#292929}
 input{
- width:100%;padding:14px;margin-top:8px;
- background:#0b1424;border:1px solid #34445d;
- border-radius:9px;color:white;font-size:16px;
+ width:100%;
+ padding:14px;
+ border-radius:8px;
+ border:1px solid #444;
+ background:#080808;
+ color:white;
+ margin-top:8px;
+ font-size:16px;
 }
-.stats{display:flex;gap:8px;text-align:center}
+.stats{
+ display:flex;
+ gap:8px;
+ text-align:center;
+}
 .stat{
- flex:1;background:#0b1424;padding:13px 5px;
- border-radius:9px;color:#aab8cc;font-size:11px;
+ flex:1;
+ background:#080808;
+ border:1px solid #292929;
+ border-radius:9px;
+ padding:13px 4px;
+ color:#aaa;
+ font-size:10px;
 }
 .stat strong{
- display:block;color:white;font-size:20px;margin-top:8px;
+ display:block;
+ color:#ff4242;
+ font-size:20px;
+ margin-top:8px;
 }
-ul{padding-left:20px;color:#c5d0e0}
+ul{padding-left:20px;color:#ddd}
 li{padding:5px}
-.small{font-size:11px;color:#8795aa;line-height:1.6}
-footer{text-align:center;color:#64738b;font-size:11px;padding:20px}
+.small{
+ color:#888;
+ font-size:11px;
+ line-height:1.7;
+}
+hr{border:0;border-top:1px solid #333;margin:15px 0}
+footer{
+ text-align:center;
+ padding:25px 5px;
+ color:#777;
+ font-size:11px;
+}
 </style>
 </head>
 
 <body>
 
 <header>
-<h1>AVIATOR AI</h1>
-<div class="sub">STATISTICAL ANALYSIS ENGINE</div>
+<div class="plane">✈</div>
+<div class="logo">LAZIQ PREDICTIONS</div>
+<div class="tagline">AVIATOR ANALYSIS ENGINE</div>
 </header>
 
 <div class="card">
-<h3>NEXT ROUND ESTIMATE</h3>
+<h3>✈ NEXT ROUND ANALYSIS</h3>
+
 <div class="multiplier" id="prediction">--</div>
-<div class="status" id="status">Engine waiting for data</div>
+
+<div class="status" id="status">
+ENGINE WAITING FOR DATA
+</div>
+
 <button onclick="analyse()">ANALYSE RESULTS</button>
+
 <p class="small">
-This is a historical statistical estimate, not a reliable prediction
-of the next random Aviator outcome.
+Historical statistical estimate only. No system can guarantee
+the next Aviator multiplier.
 </p>
 </div>
 
 <div class="card">
-<h3>ADD ROUND RESULT</h3>
+<h3>＋ ADD PREVIOUS ROUND</h3>
+
 <input
  id="result"
  type="number"
@@ -80,41 +161,60 @@ of the next random Aviator outcome.
  step="0.01"
  placeholder="Enter multiplier e.g. 2.45"
 >
-<button onclick="addResult()">SAVE ROUND</button>
+
+<button onclick="addResult()">SAVE RESULT</button>
 </div>
 
 <div class="card">
 <h3>ENGINE STATISTICS</h3>
+
 <div class="stats">
- <div class="stat">TOTAL ROUNDS<strong id="count">0</strong></div>
- <div class="stat">AVERAGE<strong id="average">--</strong></div>
- <div class="stat">ABOVE 2X<strong id="above">0%</strong></div>
+<div class="stat">
+TOTAL ROUNDS
+<strong id="count">0</strong>
+</div>
+
+<div class="stat">
+AVERAGE
+<strong id="average">--</strong>
+</div>
+
+<div class="stat">
+ABOVE 2X
+<strong id="above">0%</strong>
+</div>
 </div>
 </div>
 
 <div class="card">
-<h3>RECENT ROUNDS</h3>
+<h3>ROUND HISTORY</h3>
 <ul id="history">
 <li>No results recorded</li>
 </ul>
-<button class="secondary" onclick="clearData()">CLEAR HISTORY</button>
+
+<button class="secondary" onclick="clearData()">
+CLEAR HISTORY
+</button>
 </div>
 
 <div class="card">
-<h3>ENGINE INFORMATION</h3>
+<h3>LAZIQ ENGINE STATUS</h3>
 <p class="small">
-Data source: Manually entered historical rounds.<br>
-Storage: Browser local storage.<br>
-Analysis: Historical median, average and frequency.<br>
-Automatic live platform access: Not connected.
+ENGINE: Statistical analysis<br>
+DATA: Manually collected results<br>
+STORAGE: Browser local storage<br>
+BACKTEST: Historical performance<br>
+LIVE GAME CONNECTION: Not connected
 </p>
 </div>
 
 <footer>
-AVIATOR AI PREDICTOR • DEVELOPMENT VERSION 1.0
+LAZIQ PREDICTIONS © 2026<br>
+BUILT FOR ANALYSIS • NOT GUARANTEED PREDICTIONS
 </footer>
 
 <script src="engine.js"></script>
 
 </body>
-</html>
+ </html>
+ 
