@@ -1,0 +1,87 @@
+
+const STORAGE_KEY = "aviator_history";
+
+let results = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+
+function saveResults() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(results));
+}
+
+function addResult() {
+  const input = document.getElementById("result");
+  const value = Number(input.value);
+
+  if (!Number.isFinite(value) || value < 1 || value > 100000) {
+    alert("Enter a valid multiplier.");
+    return;
+  }
+
+  results.unshift(Number(value.toFixed(2)));
+  results = results.slice(0, 500);
+  saveResults();
+  input.value = "";
+  update();
+}
+
+function update() {
+  document.getElementById("count").textContent = results.length;
+
+  if (!results.length) {
+    document.getElementById("average").textContent = "--";
+    document.getElementById("above").textContent = "0%";
+    document.getElementById("history").innerHTML =
+      "<li>No data yet</li>";
+    return;
+  }
+
+  const average = results.reduce((a,b) => a+b, 0) / results.length;
+  const above = results.filter(x => x >= 2).length / results.length * 100;
+
+  document.getElementById("average").textContent =
+    average.toFixed(2) + "x";
+
+  document.getElementById("above").textContent =
+    above.toFixed(1) + "%";
+
+  document.getElementById("history").innerHTML =
+    results.slice(0,15)
+      .map(x => `<li>${x.toFixed(2)}x</li>`).join("");
+}
+
+function analyse() {
+  if (results.length < 20) {
+    document.getElementById("status").textContent =
+      "Need at least 20 historical rounds.";
+    return;
+  }
+
+  const sorted = [...results].sort((a,b) => a-b);
+  const median = sorted[Math.floor(sorted.length / 2)];
+
+  const recent = results.slice(0,20);
+  const recentAverage =
+    recent.reduce((a,b) => a+b,0) / recent.length;
+
+  document.getElementById("prediction").textContent =
+    median.toFixed(2) + "x";
+
+  document.getElementById("status").textContent =
+    "Historical median: " + median.toFixed(2) +
+    "x | Recent average: " + recentAverage.toFixed(2) +
+    "x | Descriptive estimate only";
+}
+
+function clearData() {
+  if (confirm("Delete all historical results?")) {
+    results = [];
+    saveResults();
+
+    document.getElementById("prediction").textContent = "--";
+    document.getElementById("status").textContent =
+      "Waiting for historical data";
+
+    update();
+  }
+}
+
+update();
