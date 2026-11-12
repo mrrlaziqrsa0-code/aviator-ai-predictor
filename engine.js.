@@ -1,10 +1,34 @@
 
 const STORAGE_KEY = "aviator_history";
 
-let results = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+let results = [];
+
+try {
+  const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+  if (Array.isArray(saved)) {
+    results = saved.filter(
+      x => Number.isFinite(x) && x >= 1 && x <= 100000
+    ).slice(0, 500);
+  }
+} catch {
+  results = [];
+}
 
 function saveResults() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(results));
+}
+
+function median(values) {
+  const sorted = [...values].sort((a,b) => a-b);
+  const mid = Math.floor(sorted.length / 2);
+
+  return sorted.length % 2
+    ? sorted[mid]
+    : (sorted[mid-1] + sorted[mid]) / 2;
+}
+
+function average(values) {
+  return values.reduce((a,b) => a+b, 0) / values.length;
 }
 
 function addResult() {
@@ -18,6 +42,7 @@ function addResult() {
 
   results.unshift(Number(value.toFixed(2)));
   results = results.slice(0, 500);
+
   saveResults();
   input.value = "";
   update();
@@ -30,58 +55,188 @@ function update() {
     document.getElementById("average").textContent = "--";
     document.getElementById("above").textContent = "0%";
     document.getElementById("history").innerHTML =
-      "<li>No data yet</li>";
+      "<li>No results recorded</li>";
+    renderAnalysis();
     return;
   }
 
-  const average = results.reduce((a,b) => a+b, 0) / results.length;
-  const above = results.filter(x => x >= 2).length / results.length * 100;
+  const avg = average(results);
+  const above = results.filter(x => x >= 2).length /
+                results.length * 100;
 
   document.getElementById("average").textContent =
-    average.toFixed(2) + "x";
+    avg.toFixed(2) + "x";
 
   document.getElementById("above").textContent =
     above.toFixed(1) + "%";
 
-  document.getElementById("history").innerHTML =
-    results.slice(0,15)
-      .map(x => `<li>${x.toFixed(2)}x</li>`).join("");
+  const history = document.getElementById("history");
+  history.replaceChildren();
+
+  results.slice(0,15).forEach(value => {
+    const li = document.createElement("li");
+    li.textContent = value.toFixed(2) + "x";
+    history.appendChild(li);
+  });
+
+  renderAnalysis();
 }
 
 function analyse() {
   if (results.length < 20) {
+    document.getElementById("prediction").textContent = "--";
     document.getElementById("status").textContent =
-      "Need at least 20 historical rounds.";
+      "Need at least 20 recorded rounds.";
     return;
   }
 
-  const sorted = [...results].sort((a,b) => a-b);
-  const median = sorted[Math.floor(sorted.length / 2)];
-
-  const recent = results.slice(0,20);
-  const recentAverage =
-    recent.reduce((a,b) => a+b,0) / recent.length;
+  const sample = results.slice(0,20);
+  const estimate = median(sample);
 
   document.getElementById("prediction").textContent =
-    median.toFixed(2) + "x";
+    estimate.toFixed(2) + "x";
 
   document.getElementById("status").textContent =
-    "Historical median: " + median.toFixed(2) +
-    "x | Recent average: " + recentAverage.toFixed(2) +
-    "x | Descriptive estimate only";
+    "20-round historical median • Not a forecast guarantee";
+}
+
+function backtest() {
+  if (results.length < 21) return null;
+
+  let modelError = 0;
+  let baselineError = 0;
+  let tested = 0;
+
+  // Results are stored newest first.
+  // Each test uses 20 older rounds to examine one later round.
+  for (let i = results.length - 21; i >= 0; i--) {
+    const training = results.slice(i + 1, i + 21);
+    const actual = results[i];
+
+    if (training.length !== 20) continue;
+
+    const estimate = median(training);
+
+    modelError += Math.abs(actual - estimate);
+    baselineError += Math.abs(actual - 1.00);
+    tested++;
+  }
+
+  if (!tested) return null;
+
+  return {
+    tested,
+    modelMAE: modelError / tested,
+    baselineMAE: baselineError / tested
+  };
+}
+
+function renderAnalysis() {
+  let panel = document.getElementById("advanced-analysis");
+
+  if (!panel) {
+    panel = document.createElement("div");
+    panel.id = "advanced-analysis";
+    panel.className = "card";
+
+    const info = document.querySelectorAll(".card");
+    const lastCard = info[info.length - 1];
+
+    lastCard.before(panel);
+  }
+
+  if (!results.length) {
+    panel.innerHTML =
+      "<h3>ADVANCED ANALYSIS</h3><p>No data available.</p>";
+    return;
+  }
+
+  const low = results.filter(x => x < 2).length;
+  const medium = results.filter(x => x >= 2 && x < 10).length;
+  const high = results.filter(x => x >= 10).length;
+
+  const windows = [20,50,100];
+
+  let html = "<h3>ROUND FREQUENCY</h3>";
+
+  html += `
+    <p class="small">Below 2x: ${low} (${(low/results.length*100).toFixed(1)}%)</p>
+    <p class="small">2x to below 10x: ${medium} (${(medium/results.length*100).toFixed(1)}%)</p>
+    <p class="small">10x and above: ${high} (${(high/results.length*100).toFixed(1)}%)</p>
+    <hr>
+    <h3>ROLLING ANALYSIS</h3>
+  `;
+
+  windows.forEach(size => {
+    if (results.length < size) {
+      html += `<p class="small">${size} rounds: Need ${size-results.length} more results.</p>`;
+      return;
+    }
+
+    const sample = results.slice(0,size);
+
+    html += `
+      <p class="small">
+        Last ${size} rounds:
+        Average ${average(sample).toFixed(2)}x |
+        Median ${median(sample).toFixed(2)}x
+      </p>
+    `;
+  });
+
+  if (results.length >= 40) {
+    const recent = average(results.slice(0,20));
+    const previous = average(results.slice(20,40));
+
+    html += `
+      <hr>
+      <h3>RECENT COMPARISON</h3>
+      <p class="small">Latest 20 average: ${recent.toFixed(2)}x</p>
+      <p class="small">Previous 20 average: ${previous.toFixed(2)}x</p>
+      <p class="small">Difference: ${(recent-previous).toFixed(2)}x</p>
+    `;
+  }
+
+  html += "<hr><h3>HISTORICAL BACKTEST</h3>";
+
+  const test = backtest();
+
+  if (!test) {
+    html += `<p class="small">Need at least 21 results for testing.</p>`;
+  } else {
+    html += `
+      <p class="small">Historical test cases: ${test.tested}</p>
+      <p class="small">Median model MAE: ${test.modelMAE.toFixed(2)}x</p>
+      <p class="small">1.00x baseline MAE: ${test.baselineMAE.toFixed(2)}x</p>
+      <p class="small">
+        ${test.modelMAE < test.baselineMAE
+          ? "The median model had lower historical error in this sample."
+          : "The median model did not outperform the baseline in this sample."}
+      </p>
+    `;
+  }
+
+  html += `
+    <p class="small">
+      MAE measures average absolute prediction error on recorded historical
+      rounds. It does not establish future predictive power.
+    </p>
+  `;
+
+  panel.innerHTML = html;
 }
 
 function clearData() {
-  if (confirm("Delete all historical results?")) {
-    results = [];
-    saveResults();
+  if (!confirm("Delete all saved historical results?")) return;
 
-    document.getElementById("prediction").textContent = "--";
-    document.getElementById("status").textContent =
-      "Waiting for historical data";
+  results = [];
+  saveResults();
 
-    update();
-  }
+  document.getElementById("prediction").textContent = "--";
+  document.getElementById("status").textContent =
+    "Engine waiting for data";
+
+  update();
 }
 
 update();
